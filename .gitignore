@@ -16,6 +16,8 @@ node_modules
 /node_modules
 lib/openzeppelin-contracts
 /lib/openzeppelin-contracts
+node_modules/
+
 
 [submodule "lib/openzeppelin-contracts"]
     path = lib/openzeppelin-contracts
