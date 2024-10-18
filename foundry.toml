@@ -1,9 +1,9 @@
 [profile.default]
-src = 'contracts'
-out = 'out'
-libs = [
-    'lib'
-]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.26"
+
 ffi=true
 verbosity=5
 

@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+pragma solidity ^0.8.26;
+
 import "forge-std/Test.sol";
 import "../../lib/utils/strings.sol";
 
 abstract contract DiamondUtils is Test {
     using strings for *;
 
-    function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
+    function generateSelectors(
+        string memory _facetName
+    ) internal returns (bytes4[] memory selectors) {
         //get string of contract methods
         string[] memory cmd = new string[](4);
         cmd[0] = "forge";

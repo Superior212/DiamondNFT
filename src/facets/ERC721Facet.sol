@@ -53,9 +53,12 @@ contract ERC721Facet is IERC721Errors {
     /**
      * @dev See {IERC721-ownerOf}.
      */
-    function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        LibDiamond.enforceIsContractOwner();
-        // return libStorage.requireOwned(tokenId);
+    function ownerOf(
+        uint256 tokenId
+    ) public view virtual returns (address owner) {
+        owner = LibDiamond.diamondStorage().owners[tokenId];
+        require(owner != address(0), "ERC721: invalid token ID");
+        return owner;
     }
 
     /**
@@ -90,7 +93,6 @@ contract ERC721Facet is IERC721Errors {
         } else {
             return "";
         }
-                
     }
 
     /**
@@ -202,13 +204,11 @@ contract ERC721Facet is IERC721Errors {
         uint256 tokenId,
         address auth
     ) internal virtual returns (address) {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
-        address from = libStorage.owners[tokenId];
+        address from = LibDiamond.diamondStorage().owners[tokenId];
 
         // Perform (optional) operator check
         if (auth != address(0)) {
-            _isAuthorized(from, auth, tokenId);
+            _isAuthorized(auth, tokenId); // Remove 'from' argument
         }
 
         // Execute the update
@@ -217,17 +217,17 @@ contract ERC721Facet is IERC721Errors {
             _approve(address(0), tokenId, address(0));
 
             unchecked {
-                libStorage.balances[from] -= 1;
+                LibDiamond.diamondStorage().balances[from] -= 1;
             }
         }
 
         if (to != address(0)) {
             unchecked {
-                libStorage.balances[to] += 1;
+                LibDiamond.diamondStorage().balances[to] += 1;
             }
         }
 
-        libStorage.owners[tokenId] = to;
+        LibDiamond.diamondStorage().owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
 
@@ -247,8 +247,6 @@ contract ERC721Facet is IERC721Errors {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
@@ -315,15 +313,21 @@ contract ERC721Facet is IERC721Errors {
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal {
-        if (to == address(0)) {
-            revert ERC721InvalidReceiver(address(0));
-        }
-        address previousOwner = _update(to, tokenId, address(0));
-        if (previousOwner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        } else if (previousOwner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
-        }
+        require(
+            ERC721Facet.ownerOf(tokenId) == from,
+            "ERC721: transfer from incorrect owner"
+        );
+        require(to != address(0), "ERC721: transfer to the zero address");
+
+        // Clear approvals from the previous owner
+        _approve(address(0), tokenId, from);
+
+        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        ds.balances[from] -= 1;
+        ds.balances[to] += 1;
+        ds.owners[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
     }
 
     /**
@@ -409,8 +413,9 @@ contract ERC721Facet is IERC721Errors {
 
     //     libStorage.tokenApprovals[tokenId] = to;
     // }
-      function _approve(address to, uint256 tokenId, address owner) internal {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
+    function _approve(address to, uint256 tokenId, address owner) internal {
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond
+            .diamondStorage();
         libStorage.tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
     }
@@ -456,11 +461,7 @@ contract ERC721Facet is IERC721Errors {
     /**
      * @dev Checks if `auth` is authorized to operate on `tokenId` owned by `from`.
      */
-    function _isAuthorized(
-        address from,
-        address auth,
-        uint256 tokenId
-    ) internal view {
+    function _isAuthorized(address auth, uint256 tokenId) internal view {
         LibDiamond.DiamondStorage storage libStorage = LibDiamond
             .diamondStorage();
         address owner = libStorage.owners[tokenId];
@@ -474,7 +475,7 @@ contract ERC721Facet is IERC721Errors {
     }
 
     function _checkOnERC721Received(
-        address from,
+        address _from,
         address to,
         uint256 tokenId,
         bytes memory data
@@ -483,7 +484,7 @@ contract ERC721Facet is IERC721Errors {
             try
                 IERC721Receiver(to).onERC721Received(
                     msg.sender,
-                    from,
+                    _from, // Use _from here
                     tokenId,
                     data
                 )
