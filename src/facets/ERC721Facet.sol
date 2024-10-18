@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/ERC721.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {IERC721Errors} from "../interfaces/IErorrs.sol";
@@ -44,7 +44,6 @@ contract ERC721Facet is IERC721Errors {
     function balanceOf(address owner) public view virtual returns (uint256) {
         LibDiamond.DiamondStorage storage libStorage = LibDiamond
             .diamondStorage();
-
         if (owner == address(0)) {
             revert ERC721InvalidOwner(address(0));
         }
@@ -269,7 +268,7 @@ contract ERC721Facet is IERC721Errors {
      *
      * Emits a {Transfer} event.
      */
-    function _safeMint(address to, uint256 tokenId) internal {
+    function safeMint(address to, uint256 tokenId) external {
         _safeMint(to, tokenId, "");
     }
 
