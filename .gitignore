@@ -12,6 +12,10 @@ docs/
 
 # Dotenv file
 .env
+node_modules
+/node_modules
+lib/openzeppelin-contracts
+/lib/openzeppelin-contracts
 
 [submodule "lib/openzeppelin-contracts"]
     path = lib/openzeppelin-contracts
