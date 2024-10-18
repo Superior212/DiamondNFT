@@ -88,8 +88,7 @@ contract DiamondDeployer is Test, DiamondUtils, IDiamondCut {
     }
 
     function testDeployDiamond() public view {
-        address[] memory facetAddresses = DiamondLoupeFacet(address(diamond))
-            .facetAddresses();
+        address[] memory facetAddresses = DiamondLoupeFacet(address(diamond)).facetAddresses();
         assertEq(facetAddresses.length, 6);
     }
 
@@ -175,9 +174,5 @@ contract DiamondDeployer is Test, DiamondUtils, IDiamondCut {
     //     MerkleFacet(address(diamond)).claim(invalidProof);
     // }
 
-    function diamondCut(
-        FacetCut[] calldata _diamondCut,
-        address _init,
-        bytes calldata _calldata
-    ) external override {}
+    function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external override {}
 }

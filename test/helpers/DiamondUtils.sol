@@ -7,9 +7,7 @@ import "../../lib/utils/strings.sol";
 abstract contract DiamondUtils is Test {
     using strings for *;
 
-    function generateSelectors(
-        string memory _facetName
-    ) internal returns (bytes4[] memory selectors) {
+    function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
         //get string of contract methods
         string[] memory cmd = new string[](4);
         cmd[0] = "forge";

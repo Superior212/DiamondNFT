@@ -17,33 +17,20 @@ contract ERC721Facet is IERC721Errors {
     /**
      * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
      */
-    event Transfer(
-        address indexed from,
-        address indexed to,
-        uint256 indexed tokenId
-    );
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     /**
      * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
      */
-    event Approval(
-        address indexed owner,
-        address indexed approved,
-        uint256 indexed tokenId
-    );
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
 
     /**
      * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
      */
-    event ApprovalForAll(
-        address indexed owner,
-        address indexed operator,
-        bool approved
-    );
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     function balanceOf(address owner) public view virtual returns (uint256) {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         if (owner == address(0)) {
             revert ERC721InvalidOwner(address(0));
         }
@@ -53,9 +40,7 @@ contract ERC721Facet is IERC721Errors {
     /**
      * @dev See {IERC721-ownerOf}.
      */
-    function ownerOf(
-        uint256 tokenId
-    ) public view virtual returns (address owner) {
+    function ownerOf(uint256 tokenId) public view virtual returns (address owner) {
         owner = LibDiamond.diamondStorage().owners[tokenId];
         require(owner != address(0), "ERC721: invalid token ID");
         return owner;
@@ -65,8 +50,7 @@ contract ERC721Facet is IERC721Errors {
      * @dev See {IERC721Metadata-name}.
      */
     function name() public view virtual returns (string memory) {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         return libStorage.name;
     }
 
@@ -74,17 +58,14 @@ contract ERC721Facet is IERC721Errors {
      * @dev See {IERC721Metadata-symbol}.
      */
     function symbol() public view virtual returns (string memory) {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         return libStorage.symbol;
     }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
-    function tokenURI(
-        uint256 tokenId
-    ) public view virtual returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
         _requireOwned(tokenId);
 
         string memory baseURI = _baseURI();
@@ -114,12 +95,9 @@ contract ERC721Facet is IERC721Errors {
     /**
      * @dev See {IERC721-getApproved}.
      */
-    function getApproved(
-        uint256 tokenId
-    ) public view virtual returns (address) {
+    function getApproved(uint256 tokenId) public view virtual returns (address) {
         _requireOwned(tokenId);
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
 
         return libStorage.tokenApprovals[tokenId];
     }
@@ -128,31 +106,22 @@ contract ERC721Facet is IERC721Errors {
      * @dev See {IERC721-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public virtual {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         libStorage.operatorApprovals[msg.sender][operator] = approved;
     }
 
     /**
      * @dev See {IERC721-isApprovedForAll}.
      */
-    function isApprovedForAll(
-        address owner,
-        address operator
-    ) public view virtual returns (bool) {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         return libStorage.operatorApprovals[owner][operator];
     }
 
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
@@ -167,23 +136,14 @@ contract ERC721Facet is IERC721Errors {
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public virtual {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
         _checkOnERC721Received(msg.sender, to, tokenId, data);
     }
@@ -199,11 +159,7 @@ contract ERC721Facet is IERC721Errors {
      *
      * NOTE: If overriding this function in a way that tracks balances, see also {_increaseBalance}.
      */
-    function _update(
-        address to,
-        uint256 tokenId,
-        address auth
-    ) internal virtual returns (address) {
+    function _update(address to, uint256 tokenId, address auth) internal virtual returns (address) {
         address from = LibDiamond.diamondStorage().owners[tokenId];
 
         // Perform (optional) operator check
@@ -274,11 +230,7 @@ contract ERC721Facet is IERC721Errors {
      * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
-    function _safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
+    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
         _checkOnERC721Received(msg.sender, to, tokenId, data);
     }
@@ -313,10 +265,7 @@ contract ERC721Facet is IERC721Errors {
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal {
-        require(
-            ERC721Facet.ownerOf(tokenId) == from,
-            "ERC721: transfer from incorrect owner"
-        );
+        require(ERC721Facet.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
         // Clear approvals from the previous owner
@@ -357,12 +306,7 @@ contract ERC721Facet is IERC721Errors {
      * @dev Same as {xref-ERC721-_safeTransfer-address-address-uint256-}[`_safeTransfer`], with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
-    function _safeTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
+    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
         _checkOnERC721Received(msg.sender, to, tokenId, data);
     }
@@ -414,8 +358,7 @@ contract ERC721Facet is IERC721Errors {
     //     libStorage.tokenApprovals[tokenId] = to;
     // }
     function _approve(address to, uint256 tokenId, address owner) internal {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         libStorage.tokenApprovals[tokenId] = to;
         emit Approval(owner, to, tokenId);
     }
@@ -428,16 +371,11 @@ contract ERC721Facet is IERC721Errors {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function _setApprovalForAll(
-        address owner,
-        address operator,
-        bool approved
-    ) internal virtual {
+    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
         if (operator == address(0)) {
             revert ERC721InvalidOperator(operator);
         }
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         libStorage.operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }
@@ -449,8 +387,7 @@ contract ERC721Facet is IERC721Errors {
      * Overrides to ownership logic should be done to {_ownerOf}.
      */
     function _requireOwned(uint256 tokenId) internal view returns (address) {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         address owner = libStorage.owners[tokenId];
         if (owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);
@@ -462,33 +399,21 @@ contract ERC721Facet is IERC721Errors {
      * @dev Checks if `auth` is authorized to operate on `tokenId` owned by `from`.
      */
     function _isAuthorized(address auth, uint256 tokenId) internal view {
-        LibDiamond.DiamondStorage storage libStorage = LibDiamond
-            .diamondStorage();
+        LibDiamond.DiamondStorage storage libStorage = LibDiamond.diamondStorage();
         address owner = libStorage.owners[tokenId];
-        if (
-            auth != owner &&
-            !isApprovedForAll(owner, auth) &&
-            libStorage.tokenApprovals[tokenId] != auth
-        ) {
+        if (auth != owner && !isApprovedForAll(owner, auth) && libStorage.tokenApprovals[tokenId] != auth) {
             revert ERC721InvalidApprover(auth);
         }
     }
 
-    function _checkOnERC721Received(
-        address _from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) private {
+    function _checkOnERC721Received(address _from, address to, uint256 tokenId, bytes memory data) private {
         if (to.code.length > 0) {
-            try
-                IERC721Receiver(to).onERC721Received(
-                    msg.sender,
-                    _from, // Use _from here
-                    tokenId,
-                    data
-                )
-            returns (bytes4 retval) {
+            try IERC721Receiver(to).onERC721Received(
+                msg.sender,
+                _from, // Use _from here
+                tokenId,
+                data
+            ) returns (bytes4 retval) {
                 if (retval != IERC721Receiver.onERC721Received.selector) {
                     revert ERC721InvalidReceiver(to);
                 }
@@ -506,10 +431,7 @@ contract ERC721Facet is IERC721Errors {
 }
 
 interface IERC721Receiver {
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external returns (bytes4);
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+        external
+        returns (bytes4);
 }
